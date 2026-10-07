@@ -109,7 +109,7 @@ test("a fixed string width self-caps at the parent (min()) and carries no flex p
 	// silently drops min() math functions when React assigns them, so the
 	// rendered style attribute cannot observe the value. The builder IS the
 	// inline-emission surface under contract.
-	const { buildContainerStyles } = await import("./Container.tsx");
+	const { buildContainerStyles } = await import("./build-styles.ts");
 	const style = buildContainerStyles({ direction: "row", width: "22px" });
 	// The badge decision (orchestrator ruling 2026-08-18): a sized element
 	// keeps its size when it fits, never overflows its parent when it does
@@ -122,7 +122,7 @@ test("a fixed string width self-caps at the parent (min()) and carries no flex p
 });
 
 test("a numeric width self-caps at the parent too", async () => {
-	const { buildContainerStyles } = await import("./Container.tsx");
+	const { buildContainerStyles } = await import("./build-styles.ts");
 	const style = buildContainerStyles({ direction: "row", width: 600 });
 	expect(style.width).toBe("min(600px, 100%)");
 	expect(style.flexShrink).toBeUndefined();

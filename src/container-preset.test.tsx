@@ -47,8 +47,10 @@ configure({
 });
 
 const { render, cleanup } = await import("@testing-library/react");
-const { Container, buildContainerStyles, buildContainerClassName } = await import(
-	"./container/Container.tsx"
+const { Container } = await import("./container/Container.tsx");
+const { buildContainerStyles } = await import("./container/build-styles.ts");
+const { buildContainerClassName } = await import(
+	"./container/build-class-name.ts"
 );
 
 const Slot = (props: Record<string, unknown>) => {
