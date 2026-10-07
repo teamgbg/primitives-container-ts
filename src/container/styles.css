@@ -1,0 +1,416 @@
+/**
+ * @system container
+ * @status handwritten
+ * @edit edit directly
+ *
+ * Structural layout classes for the Container Puck block.
+ * Container-query driven for per-block responsive behavior.
+ *
+ * THE SEAM (layout-properties-inline, as amended 2026-08-18): this stylesheet
+ * is the ONE writer of the responsive layout properties — display,
+ * flex-direction, flex-wrap, the flex grow/shrink/basis triple,
+ * grid-template-columns. build-styles.ts no longer emits any of them inline,
+ * because an inline style beats every rule here without !important and the
+ * @container collapse below was therefore dead on every Container at every
+ * width. Values that no collapse rule overrides (gaps, padding, align,
+ * colours, self-capping min() widths) stay inline in build-styles.ts.
+ */
+
+.puck-container-row {
+	display: flex;
+	flex-direction: row;
+	gap: var(--responsive-stack-gap, 1rem);
+}
+.puck-container-col {
+	display: flex;
+	flex-direction: column;
+}
+.puck-container-wrap {
+	flex-wrap: wrap;
+}
+
+/* How the container sizes inside its PARENT (flex child sizing) — classes, so
+ * the <600px collapse (`.puck-container-row > * { flex: none }`) can stop a
+ * child Container from growing on mobile. grow:1 (and the unset default) is
+ * `1 1 0%` exactly as the old inline emission; grow:0 is fixed-size. */
+.puck-container-grow {
+	flex: 1 1 0%;
+}
+.puck-container-fixed {
+	flex: 0 0 auto;
+}
+
+/*
+ * Horizontal-scroll toolbar (mobileBehavior: "scroll"). The row keeps its
+ * desktop arrangement and never wraps or collapses to a column; when its
+ * content is wider than the container it scrolls horizontally (touch-swipe /
+ * trackpad) so every control stays reachable on a narrow viewport — e.g. the
+ * projects header on a portrait tablet. Width-independent by design: the
+ * scrollbar only appears when content overflows, so it is a no-op when
+ * everything fits. Two-class specificity beats the <600px collapse rules below,
+ * so a scroll-row stays a scrollable row at every width.
+ */
+.puck-container-scroll-row.puck-container-row {
+	flex-direction: row;
+	flex-wrap: nowrap;
+	overflow-x: auto;
+	/* Horizontal scroll ONLY — overflow-y:hidden stops the horizontal scrollbar's
+	   own height from making the row taller than its content and triggering a
+	   second (vertical) scrollbar. */
+	overflow-y: hidden;
+	/* Scrollbar appearance (half-width, brand thumb) is OWNED GLOBALLY by the
+	   unified scrollbar in @teamscala/ui-foundation theme.css. We deliberately do
+	   NOT set scrollbar-width / ::-webkit-scrollbar here: setting scrollbar-width
+	   on the element makes Chrome ignore the global ::-webkit-scrollbar brand
+	   rule, and a local thumb override would beat it on specificity — both made
+	   the header scrollbar unstyled + the wrong width. Overflow control stays
+	   here; appearance is the shell's job. */
+	overscroll-behavior-x: contain;
+	-webkit-overflow-scrolling: touch;
+}
+.puck-container-scroll-row.puck-container-row > * {
+	flex: none;
+	width: auto;
+	max-width: none;
+}
+
+/*
+ * Universal header scroll. Every Container rendered as <header> in a row
+ * (htmlTag="header") gets `puck-container-header-scroll` automatically — no
+ * per-page config. On mobile/tablet (the canonical 1023.98px nav-collapse
+ * breakpoint, matching public-shell.css) the header keeps its desktop
+ * arrangement but scrolls horizontally instead of clipping, so every control
+ * stays reachable by swiping left/right. Full-size desktop (>1023.98px) is
+ * untouched: no overflow change, no clipping, dropdowns/menus unaffected.
+ *
+ * The descendant selector keeps inner header groups (nav clusters, the
+ * right-hand actions) laid out in a row at narrow widths instead of collapsing
+ * to a column via the <600px rule below — a header is a single horizontal strip
+ * you scroll, never a stacked block. Two-class specificity beats those rules.
+ * Requires a container-context ancestor (the shell header zone provides it:
+ * .public-shell-header and .utility-shell-header both set container-type).
+ *
+ */
+@container (max-width: 1023.98px) {
+	.puck-container-header-scroll.puck-container-row {
+		flex-direction: row;
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		/* Horizontal scroll ONLY — overflow-y:hidden stops the horizontal
+		   scrollbar's height from forcing a second (vertical) scrollbar in the
+		   fixed-height header. */
+		overflow-y: hidden;
+		/* Appearance owned globally (theme.css) — see scroll-row note above. */
+		overscroll-behavior-x: contain;
+		-webkit-overflow-scrolling: touch;
+	}
+	.puck-container-header-scroll.puck-container-row > *,
+	.puck-container-header-scroll .puck-container-row > * {
+		/* No !important (2026-08-18): children no longer carry inline flex
+		   declarations, so two-class specificity outranks the single-class
+		   sizing classes (.puck-container-grow/-fixed) by itself. */
+		flex: none;
+		width: auto;
+		max-width: none;
+	}
+	.puck-container-header-scroll .puck-container-row {
+		flex-direction: row;
+		flex-wrap: nowrap;
+	}
+}
+
+/*
+ * SQUEEZE — stay a row and FIT, letting text wrap to more lines.
+ *
+ * Operator ruling 2026-09-10: "it should try to squeeze it into a single
+ * viewport and it should make sure that the text goes on to multiple lines",
+ * and then, on being shown a fix keyed to the shell's header slot: "nothing in
+ * that header should be hard-coded ... we put containers and we put puck
+ * blocks."
+ *
+ * WHY IT IS A BLOCK OPTION AND NOT A SLOT RULE. A first fix expressed this as
+ * `.shell-header-slot ...`, which made ONE SURFACE SPECIAL IN CSS: the
+ * behaviour existed only where a stylesheet said so, could not be chosen from
+ * the database, and could not be used by any other page. That is the drift
+ * `two-surfaces` names — composition belongs in rows, and a capability the
+ * composer cannot select is not composable. Every rule below is keyed on the
+ * block's OWN authored prop, so a page selects it exactly like `direction` or
+ * `justify`, and no surface is privileged.
+ *
+ * THE GAP IT FILLS. `mobileBehavior` offered stack | keep-row | scroll, and a
+ * header needs none of them: `stack` becomes a column (the six header blocks
+ * dropped BENEATH the logo instead of sitting beside it); `keep-row` stays a
+ * row but pins every child `flex-shrink: 0`, so nothing can give and the row
+ * overflows; `scroll` hides that overflow behind a swipe. Measured on the
+ * proposals header at 390x844: 547px of content in a 374px viewport, with the
+ * label column sitting at x=390 — entirely off-screen, reachable only by
+ * scrolling. Under `squeeze`: 374px, no overflow, title wrapped to 3 lines.
+ *
+ * HOW IT WORKS: children keep their AUTHORED sizing (`grow` still grows,
+ * `grow: 0` still does not) and are merely ALLOWED to shrink below their own
+ * content — a flex item's default `min-width: auto` is the refusal that creates
+ * the overflow in the first place.
+ */
+@container (max-width: 1023.98px) {
+	.puck-container-squeeze.puck-container-row {
+		flex-direction: row;
+		flex-wrap: nowrap;
+		/* A squeeze FITS; it never hides content behind a scrollbar. */
+		overflow: visible;
+	}
+	.puck-container-squeeze.puck-container-row > * {
+		/* `width: auto` overrides the <600px collapse's `width: 100%`, which
+		   would otherwise force every child to full width and stack them. */
+		min-width: 0;
+		width: auto;
+		max-width: 100%;
+	}
+	/* Three classes: the authored sizing must outrank the single-class
+	   `.puck-container-grow` / `-fixed` defaults AND the <600px collapse's
+	   `flex: none`, or the growing child cannot take the slack. */
+	.puck-container-squeeze.puck-container-row > .puck-container-grow {
+		flex: 1 1 0%;
+	}
+	.puck-container-squeeze.puck-container-row > .puck-container-fixed {
+		flex: 0 0 auto;
+	}
+	/* Nested rows inside a squeezed container squeeze too — a header's inner
+	   groups are part of the same fit, not separate decisions. */
+	.puck-container-squeeze .puck-container-row {
+		flex-direction: row;
+		flex-wrap: nowrap;
+	}
+}
+
+/* Grid layout. The column TEMPLATE is a class (per-N for the authored enum,
+ * fill/fit for reflowing card grids) so the <600px collapse to one column can
+ * override it — an inline grid-template-columns used to beat that collapse
+ * unconditionally. `repeat()` cannot take a var(), hence per-N classes; the
+ * minimum column width for fill/fit rides --responsive-grid-min, a VALUE the
+ * classes consume (custom properties never beat a collapse rule). */
+.puck-container-grid {
+	display: grid;
+	gap: var(--responsive-grid-gap, 1rem);
+}
+.puck-container-grid-fill {
+	grid-template-columns: repeat(
+		auto-fill,
+		minmax(var(--responsive-grid-min, 280px), 1fr)
+	);
+}
+.puck-container-grid-fit {
+	grid-template-columns: repeat(
+		auto-fit,
+		minmax(var(--responsive-grid-min, 280px), 1fr)
+	);
+}
+.puck-container-cols-1 {
+	grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+.puck-container-cols-2 {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.puck-container-cols-3 {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.puck-container-cols-4 {
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.puck-container-cols-5 {
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+.puck-container-cols-6 {
+	grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+.puck-container-cols-7 {
+	grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+.puck-container-cols-8 {
+	grid-template-columns: repeat(8, minmax(0, 1fr));
+}
+.puck-container-cols-9 {
+	grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+.puck-container-cols-10 {
+	grid-template-columns: repeat(10, minmax(0, 1fr));
+}
+.puck-container-cols-11 {
+	grid-template-columns: repeat(11, minmax(0, 1fr));
+}
+.puck-container-cols-12 {
+	grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+/*
+ * Document section ("first-class" agreement body / appendix). Renders the
+ * container as a framed light-surface "page" sheet on the page's own background, with a
+ * gap above/below so each section reads as a separate page — all on one URL.
+ * Driven purely by the container's `sectionType` setting (no custom code).
+ * Colours via theme tokens so it tracks light/dark mode.
+ */
+.gui-container-document-page {
+	background: var(--color-card);
+	color: var(--color-card-foreground);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-md);
+	padding: clamp(1.5rem, 4vw, 3.5rem);
+	margin-block: 2rem;
+	box-shadow:
+		0 1px 3px color-mix(in srgb, var(--color-foreground) 10%, transparent),
+		0 4px 12px color-mix(in srgb, var(--color-foreground) 6%, transparent);
+}
+
+@media print {
+	/* Each first-class section starts on its own physical page in print/PDF. */
+	.gui-container-document-page {
+		break-before: page;
+		break-inside: avoid;
+		box-shadow: none;
+		margin-block: 0;
+		border: none;
+	}
+}
+
+@container (max-width: 600px) {
+	.puck-container-row {
+		flex-direction: column;
+		flex-wrap: nowrap;
+	}
+	.puck-container-row > * {
+		flex: none;
+		min-width: 0;
+		max-width: 100%;
+		width: 100%;
+	}
+	.puck-container-grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+	.puck-container-keep-row.puck-container-row {
+		flex-direction: row;
+	}
+	.puck-container-keep-row.puck-container-row > * {
+		flex-shrink: 0;
+		width: auto;
+	}
+	/* scroll-row is width-independent — defined ungated above, not here. */
+}
+
+/*
+  BACKGROUND MOTION — the "dynamic backgrounds catalogue" as a Container
+  capability, chosen by name from the block's own dropdown.
+
+  The operator asked for "a catalogue that we had access to that allows us to
+  set dynamic backgrounds and things like that that were moving". The only
+  moving background that existed was one bespoke class inside the quiz's own
+  stylesheet, reachable by nothing else — so any page that wanted one grew its
+  own copy. These are named options on the Container instead, which means every
+  page and every block composition gets them without a line of code.
+
+  TRANSFORM ONLY, NEVER background-position. Animating background-position
+  repaints a full-viewport gradient every frame; a transform on a composited
+  layer does not. AnimatedGrid already learned this, and this copies it rather
+  than inventing a second approach.
+
+  THE COLOUR IS THE BRAND, not a literal. Each layer tints --color-primary, so
+  the motion IS the accent rather than a wash laid over the content — which is
+  what lets a card sit on top of it and stay readable.
+*/
+.puck-container-motion {
+	position: relative;
+	isolation: isolate;
+	overflow: hidden;
+}
+
+.puck-container-motion::before {
+	content: "";
+	position: absolute;
+	inset: -25%;
+	z-index: -1;
+	will-change: transform;
+	pointer-events: none;
+}
+
+/*
+  Aurora — a full-bleed brand wash with two lobes drifting across it.
+
+  THE WASH IS WHY IT IS A BACKGROUND AND NOT A PATCH. Lobes alone leave the
+  corners untinted, and on a tall viewport that reads as a band across part of
+  the screen rather than a background (operator, 2026-09-10: "the background
+  is not full screen, it is like it is just a block across half the screen").
+  The base layer covers the whole box; the lobes give it movement.
+*/
+.puck-container-motion-aurora::before {
+	background:
+		radial-gradient(
+			70% 70% at 18% 22%,
+			color-mix(in srgb, var(--color-primary) 42%, transparent),
+			transparent 72%
+		),
+		radial-gradient(
+			65% 65% at 85% 78%,
+			color-mix(in srgb, var(--color-primary) 32%, transparent),
+			transparent 72%
+		),
+		linear-gradient(
+			160deg,
+			color-mix(in srgb, var(--color-primary) 16%, transparent),
+			color-mix(in srgb, var(--color-primary) 6%, transparent)
+		);
+	animation: puck-container-drift 24s ease-in-out infinite alternate;
+}
+
+/* Pulse — one centred lobe breathing, for a card that wants a halo. */
+.puck-container-motion-pulse::before {
+	background: radial-gradient(
+		50% 50% at 50% 50%,
+		color-mix(in srgb, var(--color-primary) 30%, transparent),
+		transparent 70%
+	);
+	animation: puck-container-breathe 12s ease-in-out infinite alternate;
+}
+
+/* Highway — brand-tinted bands sweeping past, the moving-road look. */
+.puck-container-motion-highway::before {
+	background: repeating-linear-gradient(
+		115deg,
+		color-mix(in srgb, var(--color-primary) 20%, transparent) 0 2px,
+		transparent 2px 90px
+	);
+	animation: puck-container-sweep 9s linear infinite;
+}
+
+@keyframes puck-container-drift {
+	from {
+		transform: translate3d(-4%, -3%, 0) scale(1.04);
+	}
+	to {
+		transform: translate3d(5%, 4%, 0) scale(1.12);
+	}
+}
+
+@keyframes puck-container-breathe {
+	from {
+		transform: scale(1);
+		opacity: 0.75;
+	}
+	to {
+		transform: scale(1.18);
+		opacity: 1;
+	}
+}
+
+@keyframes puck-container-sweep {
+	from {
+		transform: translate3d(0, 0, 0);
+	}
+	to {
+		transform: translate3d(90px, -42px, 0);
+	}
+}
+
+/* Anyone who asked for less motion gets the still gradient, not a jitter. */
+@media (prefers-reduced-motion: reduce) {
+	.puck-container-motion::before {
+		animation: none;
+	}
+}
