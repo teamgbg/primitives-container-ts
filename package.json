@@ -1,0 +1,25 @@
+{
+	"name": "@teamscala/container",
+	"_generated": {
+		"system": "container",
+		"status": "generated",
+		"edit": "edit src/ — dependencies and exports derive from imports; everything else preserved"
+	},
+	"dependencies": {
+		"@teamscala/cache": "*",
+		"@teamscala/ui-foundation": "*"
+	},
+	"exports": {
+		"./block": "./src/block.tsx",
+		"./block.tsx": "./src/block.tsx",
+		"./container/Container": "./src/container/Container.tsx",
+		"./container/Container.tsx": "./src/container/Container.tsx",
+		"./container/container-presets-config": "./src/container/container-presets-config.ts",
+		"./container/container-presets-config.ts": "./src/container/container-presets-config.ts",
+		"./container/props": "./src/container/props.ts",
+		"./container/props.ts": "./src/container/props.ts",
+		"./container/resolve-props": "./src/container/resolve-props.ts",
+		"./container/resolve-props.ts": "./src/container/resolve-props.ts",
+		"./styles.css": "./src/styles.css"
+	}
+}
