@@ -22,5 +22,17 @@
 		"./container/resolve-props": "./src/container/resolve-props.ts",
 		"./container/resolve-props.ts": "./src/container/resolve-props.ts",
 		"./styles.css": "./src/styles.css"
+	},
+	"devDependencies": {
+		"@happy-dom/global-registrator": "*",
+		"@testing-library/react": "*"
+	},
+	"peerDependencies": {
+		"react": "*"
+	},
+	"peerDependenciesMeta": {
+		"react": {
+			"optional": true
+		}
 	}
 }
