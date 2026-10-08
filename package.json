@@ -25,7 +25,9 @@
 	},
 	"devDependencies": {
 		"@happy-dom/global-registrator": "*",
-		"@testing-library/react": "*"
+		"@testing-library/react": "*",
+		"react": "*",
+		"react-dom": "*"
 	},
 	"peerDependencies": {
 		"react": "*"
