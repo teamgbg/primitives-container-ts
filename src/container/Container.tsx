@@ -17,6 +17,33 @@ import type { CSSProperties } from "react";
 import type { ContainerProps } from "./props.ts";
 import { resolveContainerProps } from "./resolve-props.ts";
 
+export function buildColumnWidthsTracks(props: ContainerProps): string | null {
+	const { layout, columns, gridFill, columnWidths } = resolveContainerProps(props);
+	if (layout !== "grid") return null;
+	if (gridFill === "auto-fill" || gridFill === "auto-fit") return null;
+	const colNum = Math.min(12, Math.max(1, Number(columns) || 2));
+	const given = (Array.isArray(columnWidths) ? columnWidths : [])
+		.filter(
+			(value): value is number =>
+				typeof value === "number" && Number.isFinite(value) && value > 0,
+		)
+		.slice(0, colNum);
+	if (given.length === 0) return null;
+	const missing = colNum - given.length;
+	const tracks = [...given];
+	if (missing > 0) {
+		const remainder = Math.max(
+			0,
+			100 - given.reduce((sum, value) => sum + value, 0),
+		);
+		const share = remainder / missing;
+		for (let index = 0; index < missing; index += 1) tracks.push(share);
+	}
+	return tracks
+		.map((value) => `minmax(0, ${Math.round(value * 100) / 100}fr)`)
+		.join(" ");
+}
+
 export function buildContainerStyles(props: ContainerProps): CSSProperties {
 	const {
 		layout,
@@ -55,6 +82,8 @@ export function buildContainerStyles(props: ContainerProps): CSSProperties {
 
 	const isGridFill = gridFill === "auto-fill" || gridFill === "auto-fit";
 
+	const columnWidthsTracks = buildColumnWidthsTracks(props);
+
 	const style: CSSProperties = {
 		maxWidth: "100%",
 		boxSizing: "border-box" as const,
@@ -81,6 +110,10 @@ export function buildContainerStyles(props: ContainerProps): CSSProperties {
 
 		...(isGrid && isGridFill && minColWidth !== "280px"
 			? ({ "--responsive-grid-min": minColWidth } as CSSProperties)
+			: {}),
+
+		...(columnWidthsTracks
+			? ({ "--puck-col-widths": columnWidthsTracks } as CSSProperties)
 			: {}),
 
 		...(customBg
@@ -196,6 +229,7 @@ export function buildContainerClassName(props: ContainerProps): string {
 			"puck-container-grid",
 			colsClass,
 			fillClass,
+			buildColumnWidthsTracks(props) ? "puck-container-custom-widths" : "",
 			backgroundMotion && backgroundMotion !== "none"
 				? `puck-container-motion puck-container-motion-${backgroundMotion}`
 				: "",

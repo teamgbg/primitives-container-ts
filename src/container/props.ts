@@ -1,6 +1,7 @@
-// @system container
-// @status generated
-// @edit change the block_schema Container row, then regenerate
+/**
+ * @system container
+ * @status handwritten
+ */
 
 import type { ComponentType, CSSProperties } from "react";
 
@@ -19,6 +20,7 @@ export interface ContainerProps {
 	borderRadius?: string;
 	columnGap?: "" | "none" | "xs" | "sm" | "md" | "lg" | "xl";
 	columns?: number | string;
+	columnWidths?: number[];
 	dataSource?: string;
 	direction?: "column" | "row" | "row-reverse" | "column-reverse";
 	emphasis?: "full" | "strong" | "muted" | "subtle" | "faint" | "none";
