@@ -1,0 +1,190 @@
+{
+  "suite": {
+    "target": "src/container/container-contract-rows.test.ts",
+    "package": "@teamscala/container",
+    "rows_module": "./container-contract-rows.json",
+    "describe_label": "@teamscala/container function_call contracts"
+  },
+  "rows": [
+    {
+      "args": [
+        {
+          "layout": "grid",
+          "columns": 2,
+          "columnWidths": [
+            33,
+            67
+          ]
+        }
+      ],
+      "note": "Percentages become fr tracks inside minmax(0, ...): fr distributes against the content box after the column gap is subtracted so the gap can never overflow, and the 0 floor stops a wide item inflating its track past its share.",
+      "expect": "minmax(0, 33fr) minmax(0, 67fr)",
+      "export": "buildColumnWidthsTracks",
+      "module": "src/container/Container.tsx",
+      "package": "@teamscala/container",
+      "suite_type": "function_call",
+      "slug": "container:column-widths-33-67-derives-fr-tracks"
+    },
+    {
+      "args": [
+        {
+          "layout": "grid",
+          "columns": 2
+        }
+      ],
+      "note": "The equal-columns default: no columnWidths means no custom tracks, no class, no property — every existing Container renders exactly as before the capability existed.",
+      "expect": null,
+      "export": "buildColumnWidthsTracks",
+      "module": "src/container/Container.tsx",
+      "package": "@teamscala/container",
+      "suite_type": "function_call",
+      "slug": "container:column-widths-empty-default-is-null"
+    },
+    {
+      "args": [
+        {
+          "layout": "grid",
+          "columns": 2,
+          "columnWidths": [
+            33,
+            67,
+            50
+          ]
+        }
+      ],
+      "note": "More entries than columns: the extras are ignored — the track count is the authored column count.",
+      "expect": "minmax(0, 33fr) minmax(0, 67fr)",
+      "export": "buildColumnWidthsTracks",
+      "module": "src/container/Container.tsx",
+      "package": "@teamscala/container",
+      "suite_type": "function_call",
+      "slug": "container:column-widths-extra-entries-ignored"
+    },
+    {
+      "args": [
+        {
+          "layout": "grid",
+          "columns": 3,
+          "columnWidths": [
+            50
+          ]
+        }
+      ],
+      "note": "Fewer entries than columns: the missing columns share the remainder (100 minus the given sum, floored at 0) equally.",
+      "expect": "minmax(0, 50fr) minmax(0, 25fr) minmax(0, 25fr)",
+      "export": "buildColumnWidthsTracks",
+      "module": "src/container/Container.tsx",
+      "package": "@teamscala/container",
+      "suite_type": "function_call",
+      "slug": "container:column-widths-fewer-entries-share-remainder"
+    },
+    {
+      "args": [
+        {
+          "direction": "row",
+          "columnWidths": [
+            33,
+            67
+          ]
+        }
+      ],
+      "note": "columnWidths is a grid capability: a flex Container ignores it entirely — no tracks, no class, no property.",
+      "expect": null,
+      "export": "buildColumnWidthsTracks",
+      "module": "src/container/Container.tsx",
+      "package": "@teamscala/container",
+      "suite_type": "function_call",
+      "slug": "container:column-widths-flex-ignored"
+    },
+    {
+      "args": [
+        {
+          "layout": "grid",
+          "columns": 2,
+          "columnWidths": [
+            0,
+            60
+          ]
+        }
+      ],
+      "note": "Non-finite and non-positive entries are dropped before the derive; the dropped column then shares the remainder like any missing one.",
+      "expect": "minmax(0, 60fr) minmax(0, 40fr)",
+      "export": "buildColumnWidthsTracks",
+      "module": "src/container/Container.tsx",
+      "package": "@teamscala/container",
+      "suite_type": "function_call",
+      "slug": "container:column-widths-nonpositive-entries-drop-and-share"
+    },
+    {
+      "args": [
+        {
+          "layout": "grid",
+          "gridFill": "auto-fill",
+          "columnWidths": [
+            33,
+            67
+          ]
+        }
+      ],
+      "note": "A reflow grid (auto-fill/auto-fit) ignores columnWidths: its track count is content-driven, so authored percentages have no columns to bind to.",
+      "expect": null,
+      "export": "buildColumnWidthsTracks",
+      "module": "src/container/Container.tsx",
+      "package": "@teamscala/container",
+      "suite_type": "function_call",
+      "slug": "container:column-widths-reflow-grid-ignored"
+    },
+    {
+      "args": [
+        {
+          "layout": "grid",
+          "columns": 2,
+          "columnWidths": [
+            33,
+            67
+          ]
+        }
+      ],
+      "note": "A custom-widths grid carries BOTH classes: cols-N stays the fail-safe track count, custom-widths overrides it at wide widths through the later cascade layer.",
+      "expect": "puck-container-grid puck-container-cols-2 puck-container-custom-widths",
+      "export": "buildContainerClassName",
+      "module": "src/container/Container.tsx",
+      "package": "@teamscala/container",
+      "suite_type": "function_call",
+      "slug": "container:custom-widths-grid-class-name-carries-both"
+    },
+    {
+      "args": [
+        {
+          "layout": "grid",
+          "columns": 2
+        }
+      ],
+      "note": "The equal-columns default class name is unchanged from before the capability: grid + cols-N and nothing else.",
+      "expect": "puck-container-grid puck-container-cols-2",
+      "export": "buildContainerClassName",
+      "module": "src/container/Container.tsx",
+      "package": "@teamscala/container",
+      "suite_type": "function_call",
+      "slug": "container:equal-grid-class-name-unchanged"
+    },
+    {
+      "args": [
+        {
+          "direction": "row",
+          "columnWidths": [
+            33,
+            67
+          ]
+        }
+      ],
+      "note": "A flex Container's class name never mentions custom-widths, whatever columnWidths carries.",
+      "expect": "puck-container-row puck-container-grow",
+      "export": "buildContainerClassName",
+      "module": "src/container/Container.tsx",
+      "package": "@teamscala/container",
+      "suite_type": "function_call",
+      "slug": "container:flex-class-name-has-no-custom-widths"
+    }
+  ]
+}
