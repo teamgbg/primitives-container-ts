@@ -19,14 +19,14 @@ export interface ContainerProps {
 	border?: "none" | "subtle" | "bold";
 	borderRadius?: string;
 	columnGap?: "" | "none" | "xs" | "sm" | "md" | "lg" | "xl";
-	columns?: number | string;
+	columns?: number;
 	columnWidths?: number[];
 	dataSource?: string;
 	direction?: "column" | "row" | "row-reverse" | "column-reverse";
 	emphasis?: "full" | "strong" | "muted" | "subtle" | "faint" | "none";
 	gap?: "none" | "xs" | "sm" | "md" | "lg" | "xl";
 	gridFill?: "" | "auto-fill" | "auto-fit";
-	grow?: number | string;
+	grow?: number;
 	height?: number;
 	htmlTag?: "div" | "header" | "section" | "nav" | "main" | "footer" | "article" | "aside";
 	justify?: "start" | "center" | "end" | "between" | "around" | "evenly";
@@ -45,7 +45,7 @@ export interface ContainerProps {
 	tone?: "primary" | "accent" | "muted" | "destructive" | "success";
 	visibleWhenPath?: string;
 	width?: number | string;
-	wrap?: boolean | string;
+	wrap?: boolean;
 	zIndex?: number;
 	content?: ComponentType<{
 		style?: CSSProperties;

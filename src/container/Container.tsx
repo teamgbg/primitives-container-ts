@@ -77,7 +77,7 @@ export function buildContainerStyles(props: ContainerProps): CSSProperties {
 		minColWidth,
 	} = resolveContainerProps(props);
 
-	const isWrap = wrap === true || wrap === "true";
+	const isWrap = wrap === true;
 	const isGrid = layout === "grid";
 
 	const isGridFill = gridFill === "auto-fill" || gridFill === "auto-fit";
@@ -209,7 +209,7 @@ export function buildContainerClassName(props: ContainerProps): string {
 		htmlTag,
 	} = resolveContainerProps(props);
 
-	const isWrap = wrap === true || wrap === "true";
+	const isWrap = wrap === true;
 	const isGrid = layout === "grid";
 	const isRow = direction === "row" || direction === "row-reverse";
 
@@ -217,7 +217,7 @@ export function buildContainerClassName(props: ContainerProps): string {
 		sectionType && sectionType !== "none" ? "gui-container-document-page" : "";
 
 	if (isGrid) {
-		const colNum = typeof columns === "string" ? Number(columns) : columns;
+		const colNum = columns;
 		const colsClass = `puck-container-cols-${Math.min(12, Math.max(1, colNum || 2))}`;
 		const fillClass =
 			gridFill === "auto-fill"
@@ -239,7 +239,7 @@ export function buildContainerClassName(props: ContainerProps): string {
 			.join(" ");
 	}
 
-	const growNum = typeof grow === "string" ? Number(grow) : grow;
+	const growNum = grow;
 	const growClass = growNum === 0 ? "puck-container-fixed" : "puck-container-grow";
 
 	const mobileClass =
